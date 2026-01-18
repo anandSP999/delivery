@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { background: #020617; color: white; }
+        .glass { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.08); }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+    <div id="loader" class="animate-pulse text-slate-600 font-bold uppercase tracking-widest text-xs">Connecting Securely...</div>
+    
+    <div id="client-page" class="hidden w-full max-w-xl animate-pop">
+        <div class="glass p-8 md:p-12 rounded-[3.5rem] shadow-2xl">
+            <header class="mb-8">
+                <span class="text-blue-500 text-[10px] font-bold uppercase tracking-widest">Video Review Portal</span>
+                <h1 id="title" class="text-3xl font-black italic uppercase tracking-tighter leading-none mt-1">TITLE</h1>
+                <p id="client-name" class="text-slate-400 mt-2 text-sm italic"></p>
+            </header>
+
+            <div class="rounded-3xl overflow-hidden bg-black aspect-video border border-slate-800 mb-8 shadow-2xl">
+                <video id="player" controls class="w-full h-full"></video>
+            </div>
+
+            <div class="space-y-4">
+                <button onclick="wa()" class="w-full py-5 rounded-3xl bg-slate-800 border border-slate-700 font-bold hover:bg-slate-700 transition">💬 Request Changes (WhatsApp)</button>
+                
+                <div id="payment-area" class="p-8 bg-blue-600/10 border border-blue-500/20 rounded-[2.5rem] text-center">
+                    <h2 id="price-tag" class="text-4xl font-black italic mb-6">₹0</h2>
+                    <div class="bg-white p-4 rounded-3xl inline-block mb-4 shadow-xl">
+                        <img id="qr-img" src="" class="w-44 h-44">
+                    </div>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Pay to unlock final 4K version</p>
+                </div>
+
+                <a id="dl-btn" href="#" target="_blank" class="hidden w-full py-6 rounded-[2.5rem] bg-gradient-to-r from-blue-500 to-cyan-500 text-center font-black text-xl shadow-2xl animate-bounce">🚀 DOWNLOAD FINAL FILE</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = { /* PASTE SAME CONFIG HERE */ };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const id = new URLSearchParams(window.location.search).get('id');
+        let conf = false;
+
+        if (id) {
+            db.ref('projects/' + id).on('value', s => {
+                const d = s.val();
+                if (d) {
+                    document.getElementById('loader').classList.add('hidden');
+                    document.getElementById('client-page').classList.remove('hidden');
+                    document.getElementById('title').innerText = d.t;
+                    document.getElementById('client-name').innerText = "Exclusively for " + d.cn;
+                    document.getElementById('player').src = d.v;
+                    document.getElementById('price-tag').innerText = "₹" + d.p;
+                    document.getElementById('qr-img').src = d.q;
+                    
+                    db.ref('projects/' + id).update({ seen: new Date().toLocaleString() });
+
+                    if (d.paid) {
+                        document.getElementById('payment-area').classList.add('hidden');
+                        document.getElementById('dl-btn').classList.remove('hidden');
+                        document.getElementById('dl-btn').href = d.f;
+                        if (!conf) { confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); conf = true; }
+                    }
+                }
+            });
+        }
+
+        function wa() {
+            const t = document.getElementById('title').innerText;
+            window.open(`https://wa.me/918866653002?text=Hi, I have reviewed the video for ${t}. Here are my feedback/changes: `);
+        }
+    </script>
+</body>
+</html>

@@ -45,7 +45,14 @@
     </div>
 
     <script>
-        const firebaseConfig = { /* PASTE SAME CONFIG HERE */ };
+        const firebaseConfig = {
+            apiKey: "AIzaSyClH2MyqJG0qkuOT5LokfxdYlLY8guW79Q",
+            authDomain: "videodelivery-1.firebaseapp.com",
+            projectId: "videodelivery-1",
+            storageBucket: "videodelivery-1.firebasestorage.app",
+            messagingSenderId: "172604228077",
+            appId: "1:172604228077:web:1275b0733029b19aefa7e4"
+          }; 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const id = new URLSearchParams(window.location.search).get('id');
@@ -77,7 +84,7 @@
 
         function wa() {
             const t = document.getElementById('title').innerText;
-            window.open(`https://wa.me/918866653002?text=Hi, I have reviewed the video for ${t}. Here are my feedback/changes: `);
+            window.open(`https://wa.me/91YOUR_NUMBER?text=Hi, I have reviewed the video for ${t}. Here are my feedback/changes: `);
         }
     </script>
 </body>
